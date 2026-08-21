@@ -1,0 +1,43 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-plugin:
+    name: Build cdylib
+    strategy:
+      matrix:
+        include:
+          - os: macos-14
+            artifact: libplugin_argocd-darwin.dylib
+            src: target/release/libplugin_argocd.dylib
+          - os: ubuntu-22.04
+            artifact: libplugin_argocd-linux.so
+            src: target/release/libplugin_argocd.so
+          - os: windows-latest
+            artifact: libplugin_argocd-windows.dll
+            src: target/release/plugin_argocd.dll
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@v2
+      - name: Build release cdylib
+        run: cargo build --release
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.src }}
+          name: openkite-plugin-argocd ${{ github.ref_name }}
+          body: |
+            Compat: built with `openkite-plugin-sdk` — see the SDK version in
+            Cargo.lock. Dylib loading requires the same rustc + exact SDK
+            version as the OpenKite core build.
