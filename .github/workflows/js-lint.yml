@@ -1,0 +1,38 @@
+name: js-lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  manifest:
+    name: Validate manifest.json
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Run manifest validator
+        run: cargo run --quiet --bin validate-manifest
+
+  js-check:
+    name: node --check on every JS file
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: node --check
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          for f in main.js icons.js src/**/*.js; do
+            [ -f "$f" ] || continue
+            echo "checking $f"
+            node --check "$f"
+          done

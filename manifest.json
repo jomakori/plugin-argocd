@@ -1,0 +1,13 @@
+{
+  "name": "argocd",
+  "version": "0.1.0",
+  "description": "ArgoCD Applications dashboard — lists, sync status, and resource trees for argoproj.io CRDs.",
+  "author": "OpenKite",
+  "entry": "main.js",
+  "sidebar": [
+    { "label": "Applications", "icon": "argo", "route": "/argocd/apps" },
+    { "label": "App Sets", "icon": "argo", "route": "/argocd/appsets" },
+    { "label": "Repos", "icon": "repo", "route": "/argocd/repos" },
+    { "label": "Projects", "icon": "argo", "route": "/argocd/projects" }
+  ]
+}
