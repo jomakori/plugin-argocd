@@ -34,9 +34,7 @@ fn main() {
         .chars()
         .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
     {
-        errors.push(format!(
-            "name '{name}' may only contain [a-zA-Z0-9-_]"
-        ));
+        errors.push(format!("name '{name}' may only contain [a-zA-Z0-9-_]"));
     }
 
     let version = value.get("version").and_then(Value::as_str).unwrap_or("");
