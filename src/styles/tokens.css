@@ -1,0 +1,21 @@
+/* Plugin-local tokens for the ArgoCD plugin.
+ *
+ * The host (assets/main.css) already exposes the design tokens we need
+ * for surfaces, type, and status colors. This file only adds a few
+ * plugin-local custom properties that don't belong on the host
+ * (custom scrollbar, layered shadows). All of them are scoped under
+ * `.argocd-plugin` so they cannot leak into the host shell.
+ */
+.argocd-plugin {
+  /* No color or status tokens here — use the host vars directly
+   * (var(--green), var(--yellow), var(--red), var(--accent),
+   * var(--argo), var(--border), etc.). The host already maps these
+   * to the design system and the theme engine. */
+  --argo-radius-sm: 6px;
+  --argo-radius-md: 8px;
+  --argo-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+  --argo-shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.06);
+  color-scheme: light;
+}

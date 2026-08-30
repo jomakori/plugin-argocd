@@ -1,0 +1,224 @@
+/* Applications grid + card. Mirrors the mockup's `.app-grid` /
+ * `.app-card` (openkite-console.css lines 571-694) with status
+ * stripe colors mapped to host tokens.
+ *
+ * Status mapping:
+ *   Synced       → var(--green)
+ *   OutOfSync    → var(--yellow)
+ *   Degraded     → var(--red)
+ *   Progressing  → var(--accent)
+ *   Suspended    → var(--fg-2) (host token, neutral)
+ *   Unknown      → var(--fg-2)
+ */
+.argocd-plugin .app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+  gap: 14px;
+  padding-bottom: 20px;
+}
+
+.argocd-plugin .app-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-1);
+  box-shadow: var(--argo-shadow-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  cursor: pointer;
+}
+.argocd-plugin .app-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--argo-shadow-card-hover);
+}
+.argocd-plugin .app-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.argocd-plugin .app-card .card-main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: transparent;
+}
+.argocd-plugin .app-card .card-status {
+  height: 5px;
+  width: 100%;
+  flex: 0 0 auto;
+}
+.argocd-plugin .app-card .card-status.synced { background: var(--green); }
+.argocd-plugin .app-card .card-status.outofsync { background: var(--yellow); }
+.argocd-plugin .app-card .card-status.degraded { background: var(--red); }
+.argocd-plugin .app-card .card-status.progressing { background: var(--accent); }
+.argocd-plugin .app-card .card-status.suspended,
+.argocd-plugin .app-card .card-status.unknown { background: var(--fg-2); }
+
+.argocd-plugin .app-card .card-body {
+  padding: 16px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.argocd-plugin .app-card .card-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding-right: 36px; /* leave space for kebab */
+}
+.argocd-plugin .app-card .source-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-2);
+}
+.argocd-plugin .app-card .source-icon .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.argocd-plugin .app-card .app-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  margin: 0;
+  line-height: 1.2;
+  color: var(--fg-0);
+}
+.argocd-plugin .app-card .app-sub {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  color: var(--fg-2);
+  margin: 3px 0 0;
+}
+
+.argocd-plugin .app-card .card-menu-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  color: var(--fg-2);
+  border-radius: var(--r-sm);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.argocd-plugin .app-card .card-menu-btn:hover {
+  background: var(--bg-2);
+  color: var(--fg-0);
+}
+
+.argocd-plugin .app-card .card-menu {
+  position: absolute;
+  top: 44px;
+  right: 10px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg-1);
+  box-shadow: var(--argo-shadow-card);
+}
+.argocd-plugin .app-card .card-menu[hidden] { display: none; }
+.argocd-plugin .app-card .card-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--fg-1);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.argocd-plugin .app-card .card-menu button:hover {
+  background: var(--bg-2);
+  color: var(--fg-0);
+}
+
+.argocd-plugin .app-card .tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+.argocd-plugin .app-card .tag {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  padding: 4px 7px;
+  border-radius: 4px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--fg-2);
+  white-space: nowrap;
+}
+
+.argocd-plugin .app-card .card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.argocd-plugin .app-card .badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.argocd-plugin .app-card .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--fg-1);
+  font-weight: 500;
+}
+.argocd-plugin .app-card .pill.success { color: var(--green); }
+.argocd-plugin .app-card .pill.warn { color: var(--yellow); }
+.argocd-plugin .app-card .pill.danger { color: var(--red); }
+.argocd-plugin .app-card .pill.info { color: var(--accent); }
+.argocd-plugin .app-card .pill.neutral { color: var(--fg-2); }
+.argocd-plugin .app-card .pill .icon {
+  width: 11px;
+  height: 11px;
+}
+.argocd-plugin .app-card .card-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  color: var(--fg-2);
+}
+.argocd-plugin .app-card .card-meta .icon {
+  width: 13px;
+  height: 13px;
+}
