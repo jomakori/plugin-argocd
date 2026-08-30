@@ -1,0 +1,226 @@
+/* The plugin's overlay shell. Mounts to <body> and covers the host
+ * main column while a plugin view is active. Hides itself when the
+ * route no longer matches the plugin's own sub-routes (apps,
+ * appsets, repos, projects).
+ */
+.argocd-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-0);
+  color: var(--fg-0);
+  font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.argocd-shell[hidden] {
+  display: none;
+}
+
+.argocd-shell .page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-1) 80%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.argocd-shell .eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--argo);
+}
+.argocd-shell h1 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 4px 0 0;
+  color: var(--fg-0);
+}
+.argocd-shell .page-sub {
+  margin: 4px 0 0;
+  color: var(--fg-2);
+  font-size: 13px;
+}
+.argocd-shell .page-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.argocd-shell .content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px 24px 24px;
+}
+
+.argocd-shell button.refresh,
+.argocd-shell button.secondary {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg-1);
+  color: var(--fg-1);
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.argocd-shell button.refresh:hover,
+.argocd-shell button.secondary:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+}
+.argocd-shell button.refresh.refreshing svg {
+  animation: argocd-spin 0.8s linear infinite;
+}
+@keyframes argocd-spin {
+  to { transform: rotate(360deg); }
+}
+
+.argocd-shell .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 24px;
+  border: 1px dashed var(--border);
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--bg-1) 60%, transparent);
+  text-align: center;
+  color: var(--fg-1);
+  max-width: 560px;
+  margin: 32px auto;
+}
+.argocd-shell .empty h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fg-0);
+}
+.argocd-shell .empty p {
+  margin: 0;
+  color: var(--fg-2);
+  max-width: 460px;
+  font-size: 13px;
+}
+.argocd-shell .empty .install-hint {
+  display: block;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg-2);
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  color: var(--fg-1);
+  text-align: left;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.argocd-shell .empty .actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.argocd-shell .empty .err-label {
+  font-size: 11.5px;
+  color: var(--fg-2);
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-2);
+}
+
+/* Reusable section-head used by stub views (appsets/repos/projects) */
+.argocd-shell .section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 8px;
+}
+.argocd-shell .section-head h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--fg-0);
+}
+.argocd-shell .section-head .badge {
+  font-size: 11px;
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--fg-2);
+}
+
+/* The stub list (appsets / repos / projects) — same card grid
+ * as Applications so the visual is consistent. */
+.argocd-shell .stub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+  gap: 14px;
+}
+.argocd-shell .stub-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-1);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.argocd-shell .stub-card .name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-0);
+}
+.argocd-shell .stub-card .sub {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  color: var(--fg-2);
+}
+
+/* Toast for "follow-up" UX (sync / refresh actions surface this). */
+.argocd-shell .toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-1);
+  color: var(--fg-1);
+  font-size: 12px;
+  box-shadow: var(--argo-shadow-card);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 100;
+}
+.argocd-shell .toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .argocd-shell .app-card,
+  .argocd-shell .app-card:hover {
+    transition: none;
+    transform: none;
+  }
+}
