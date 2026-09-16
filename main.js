@@ -43,7 +43,10 @@
     /* ---- src/styles/cards.css ---- */
     /* Applications grid + card. Mirrors the mockup's \`.app-grid\` /
      * \`.app-card\` (openkite-console.css lines 571-694) with status
-     * stripe colors mapped to host tokens.
+     * stripe colors mapped to host tokens. The mobile swipe-to-reveal
+     * affordance (mockup lines 590-621) is mirrored too: the
+     * \`.card-swipe-actions\` buttons sit behind \`.card-main\`, which
+     * slides left when the card carries \`.swiped\`.
      *
      * Status mapping:
      *   Synced       → var(--green)
@@ -80,12 +83,46 @@
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
+    /* Mobile swipe-to-reveal actions (mockup lines 590-612). Sits behind
+     * \`.card-main\`; the buttons are revealed when the card carries
+     * \`.swiped\` (see the transform below). */
+    .argocd-plugin .app-card .card-swipe-actions {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 112px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 10px;
+      background: color-mix(in oklab, var(--argo) 7%, white);
+      border-left: 1px solid var(--border);
+    }
+    .argocd-plugin .app-card .card-swipe-actions button {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--border);
+      background: var(--bg-2);
+      font-size: 11px;
+      color: var(--fg-0);
+      font-weight: 500;
+    }
+    .argocd-plugin .app-card .card-swipe-actions button.sync {
+      color: var(--green);
+    }
+    /* \`.card-main\` is opaque so it hides the actions until swiped
+     * (mockup \`background: var(--surface)\`). */
     .argocd-plugin .app-card .card-main {
       position: relative;
       display: flex;
       flex-direction: column;
       height: 100%;
-      background: transparent;
+      background: var(--bg-1);
+      transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .argocd-plugin .app-card.swiped .card-main {
+      transform: translateX(-112px);
     }
     .argocd-plugin .app-card .card-status {
       height: 5px;
@@ -264,6 +301,14 @@
     .argocd-plugin .app-card .card-meta .icon {
       width: 13px;
       height: 13px;
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      .argocd-plugin .app-card,
+      .argocd-plugin .app-card:hover,
+      .argocd-plugin .app-card .card-main {
+        transition: none;
+      }
     }
     
     /* ---- src/styles/inspector.css ---- */
@@ -884,6 +929,10 @@
     }
   }
 
+  function setCardSwipe(card, swiped) {
+    card.classList.toggle('swiped', !!swiped);
+  }
+
   function cardFromApp(app, opts) {
     var onOpen = opts && opts.onOpen;
     var onMenu = opts && opts.onMenu;
@@ -893,8 +942,18 @@
       'aria-label': app.name + ' card',
       dataset: { app: app.name, ns: app.namespace, sync: app.sync },
     }, [
-      el('div', { class: 'card-status ' + app.sync.toLowerCase() }),
+      el('div', { class: 'card-swipe-actions', 'aria-label': 'Quick actions' }, [
+        el('button', {
+          type: 'button', class: 'sync',
+          onclick: function (e) { e.stopPropagation(); setCardSwipe(card, false); onAction && onAction('sync', app); },
+        }, ['Sync']),
+        el('button', {
+          type: 'button',
+          onclick: function (e) { e.stopPropagation(); setCardSwipe(card, false); onAction && onAction('refresh', app); },
+        }, ['Refresh']),
+      ]),
       el('div', { class: 'card-main' }, [
+        el('div', { class: 'card-status ' + app.sync.toLowerCase() }),
         el('div', { class: 'card-body' }, [
           el('button', {
             class: 'card-menu-btn', type: 'button',
@@ -926,11 +985,29 @@
     card.addEventListener('click', function (e) {
       if (e.target.closest('.card-menu-btn')) return;
       if (e.target.closest('.card-menu')) return;
+      if (e.target.closest('.card-swipe-actions')) return;
+      if (card.classList.contains('swiped')) { setCardSwipe(card, false); return; }
       onOpen && onOpen(app);
     });
     card.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen && onOpen(app); }
     });
+    var swipeStart = null;
+    card.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'touch' && e.pointerType !== 'pen') return;
+      swipeStart = { x: e.clientX, y: e.clientY, id: e.pointerId };
+    });
+    card.addEventListener('pointerup', function (e) {
+      if (!swipeStart || e.pointerId !== swipeStart.id) return;
+      var start = swipeStart;
+      swipeStart = null;
+      var dx = e.clientX - start.x;
+      var dy = e.clientY - start.y;
+      if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy)) {
+        setCardSwipe(card, dx < 0);
+      }
+    });
+    card.addEventListener('pointercancel', function () { swipeStart = null; });
     card.__argoApp = app;
     card.__onMenuAction = onAction;
     return card;
