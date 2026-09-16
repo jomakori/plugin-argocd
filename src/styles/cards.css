@@ -30,8 +30,11 @@
   cursor: pointer;
 }
 .argocd-plugin .app-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: var(--argo-shadow-card-hover);
+}
+.argocd-plugin .app-card:active {
+  transform: translateY(-1px);
 }
 .argocd-plugin .app-card:focus-visible {
   outline: 2px solid var(--accent);
@@ -221,4 +224,16 @@
 .argocd-plugin .app-card .card-meta .icon {
   width: 13px;
   height: 13px;
+}
+
+/* The render guards every transition globally; this card had no guard, so it
+   kept lifting under a reduced-motion preference. The shell variant already
+   does this (shell.css) — same pattern, plugin namespace. */
+@media (prefers-reduced-motion: reduce) {
+  .argocd-plugin .app-card,
+  .argocd-plugin .app-card:hover,
+  .argocd-plugin .app-card:active {
+    transition: none;
+    transform: none;
+  }
 }
