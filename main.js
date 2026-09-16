@@ -101,6 +101,17 @@
       padding: 12px 10px;
       background: color-mix(in oklab, var(--argo) 7%, white);
       border-left: 1px solid var(--border);
+      /* The actions sit behind an *opaque* card, which hides them visually but not
+       * from the tab order or the accessibility tree: without this, a keyboard user
+       * tabs onto invisible Sync/Refresh buttons on every card, and Enter fires a
+       * real ArgoCD sync with no visible affordance. Hidden has to mean hidden.
+       * The delay keeps them visible while the card slides back over them. */
+      visibility: hidden;
+      transition: visibility 0s linear 0.22s;
+    }
+    .argocd-plugin .app-card.swiped .card-swipe-actions {
+      visibility: visible;
+      transition: visibility 0s linear 0s;
     }
     .argocd-plugin .app-card .card-swipe-actions button {
       width: 100%;
@@ -319,9 +330,15 @@
       .argocd-plugin .app-card .card-main {
         transition: none;
       }
+      /* The card does not slide under a reduced-motion preference, so the actions
+       * must not wait out the slide before leaving the tab order either. */
+      .argocd-plugin .app-card .card-swipe-actions,
+      .argocd-plugin .app-card.swiped .card-swipe-actions {
+        transition: none;
+      }
     }
     
-    /* ---- src/styles/inspector.css ---- */
+/* ---- src/styles/inspector.css ---- */
     /* Detail slide-over inspector (mockup's \`.inspector\` pattern). */
     .argocd-plugin .inspector-scrim {
       position: fixed;
